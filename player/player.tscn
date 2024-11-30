@@ -1,0 +1,35 @@
+[gd_scene load_steps=5 format=3 uid="uid://dfu6h10nbwlcb"]
+
+[ext_resource type="Script" path="res://player/player.gd" id="1_0geiy"]
+[ext_resource type="Texture2D" uid="uid://bns831vfnpebf" path="res://assets/player_ship.png" id="1_0nwrc"]
+[ext_resource type="PackedScene" uid="uid://dm0jwnvryjixk" path="res://bullet/bullet.tscn" id="2_h0jp8"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_s316x"]
+radius = 32.0
+
+[node name="Player" type="RigidBody2D"]
+linear_damp = 1.0
+angular_damp = 1.0
+script = ExtResource("1_0geiy")
+bullet_scene = ExtResource("2_h0jp8")
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="."]
+build_mode = 1
+polygon = PackedVector2Array(-20, -31, 11, -31, 12, -29, 12, -26, 11, -24, 2, -24, 4, -19, 18, -19, 18, -18, 21, -18, 21, -15, 14, -15, 17, -13, 14, -11, 21, -11, 21, -8, 18, -8, 20, -6, 27, -6, 27, -4, 32, -4, 32, -3, 34, -3, 34, 3, 32, 3, 32, 4, 27, 4, 27, 6, 20, 6, 18, 8, 21, 8, 21, 11, 14, 11, 17, 13, 14, 15, 21, 15, 21, 18, 18, 18, 18, 19, 4, 19, 2, 24, 11, 24, 12, 26, 12, 30, 11, 31, -20, 31, -21, 30, -22, 30, -23, 29, -23, 26, -22, 25, -21, 25, -20, 24, -15, 24, -13, 20, -12, 12, -23, 12, -26, 8, -26, 3, -28, 3, -31, 2, -34, 1, -34, -1, -31, -2, -28, -3, -26, -3, -26, -8, -22, -12, -12, -12, -13, -20, -15, -24, -20, -24, -21, -25, -22, -25, -23, -26, -23, -29, -22, -30, -21, -30)
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+rotation = 1.5708
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("1_0nwrc")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_s316x")
+
+[node name="Muzzle" type="Marker2D" parent="."]
+position = Vector2(50, 0)
+
+[node name="GunCooldown" type="Timer" parent="."]
+one_shot = true
+autostart = true
+
+[connection signal="timeout" from="GunCooldown" to="." method="_on_gun_cooldown_timeout"]
