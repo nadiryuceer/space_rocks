@@ -1,11 +1,12 @@
 extends RigidBody2D
 
+signal exploded
+
 var screensize = Vector2.ZERO
 var size
 var radius
 var scale_factor = 0.2
 
-signal exploded
 
 func start(_position, _velocity, _size):
 	position = _position
@@ -26,6 +27,7 @@ func _integrate_forces(physics_state):
 	xform.origin.x = wrapf(xform.origin.x, 0 - radius, screensize.x + radius)
 	xform.origin.y = wrapf(xform.origin.y, 0 - radius, screensize.y + radius)
 	physics_state.transform = xform
+
 
 func explode():
 	$CollisionShape2D.set_deferred("disabled", true)

@@ -1,11 +1,17 @@
 extends Node
 
-@export var rock_scene : PackedScene
 
+@export var rock_scene : PackedScene
 var screensize = Vector2.ZERO
 var level = 0
 var score = 0
 var playing = false
+
+
+func _ready():
+	screensize = get_viewport().get_visible_rect().size
+	$Player.position = Vector2(screensize.x / 2, screensize.y / 2)
+
 
 func new_game():
 	# remove any old rocks from previous game
@@ -18,15 +24,12 @@ func new_game():
 	await $HUD/Timer.timeout
 	playing = true
 
+
 func new_level():
 	level += 1
 	$HUD.show_message("Wave %s" % level)
 	for i in level:
 		spawn_rock(3)
-
-func _ready():
-	screensize = get_viewport().get_visible_rect().size
-	$Player.position = Vector2(screensize.x / 2, screensize.y / 2)
 
 
 func spawn_rock(size, pos=null, vel=null):
@@ -41,7 +44,10 @@ func spawn_rock(size, pos=null, vel=null):
 	call_deferred("add_child", r)
 	r.exploded.connect(self._on_rock_exploded)
 
+
 func _on_rock_exploded(size, radius, pos, vel):
+	score+=1
+	$HUD.update_score(score)
 	if size <= 1:
 		return
 	for offset in [-1, 1]:
@@ -49,14 +55,15 @@ func _on_rock_exploded(size, radius, pos, vel):
 		var newpos = pos + dir * radius
 		var newvel = dir * vel.length() * 1.1
 		spawn_rock(size - 1, newpos, newvel)
-	
+
 
 func _process(_delta):
 	if not playing:
 		return
 	if get_tree().get_nodes_in_group("rocks").size() == 0:
 		new_level()
-		
+
+
 func game_over():
 	playing = false
 	$HUD.game_over()

@@ -1,25 +1,29 @@
 extends RigidBody2D
 
-var screensize = Vector2.ZERO
-
-enum {INIT, ALIVE, INVULNERABLE, DEAD}
-var state = INIT
-
 @export var engine_power = 500
 @export var spin_power = 8000
-var thrust = Vector2.ZERO
-var rotation_dir = 0
-
 @export var bullet_scene : PackedScene
 @export var fire_rate = 0.25
-
-var can_shoot = true
 
 signal lives_changed
 signal dead
 
+var screensize = Vector2.ZERO
+enum {INIT, ALIVE, INVULNERABLE, DEAD}
+var state = INIT
+var thrust = Vector2.ZERO
+var rotation_dir = 0
+var can_shoot = true
 var reset_pos = false
 var lives = 0: set = set_lives
+
+
+# Called when the node enters the scene tree for the first time.
+func _ready():
+		change_state(ALIVE)
+		screensize = get_viewport_rect().size
+		$GunCooldown.wait_time = fire_rate
+
 
 func set_lives(value):
 	lives = value
@@ -29,12 +33,6 @@ func set_lives(value):
 	else:
 		change_state(INVULNERABLE)
 
-# Called when the node enters the scene tree for the first time.
-func _ready():
-		change_state(ALIVE)
-		screensize = get_viewport_rect().size
-		$GunCooldown.wait_time = fire_rate
-		
 
 func change_state(new_state):
 	match new_state:
@@ -65,6 +63,11 @@ func shoot():
 	get_tree().root.add_child(b)
 	b.start($Muzzle.global_transform)
 
+
+func _on_gun_cooldown_timeout() -> void:
+	can_shoot = true
+
+
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(_delta):
 	get_input()
@@ -79,12 +82,13 @@ func get_input():
 	rotation_dir = Input.get_axis("rotate_left", "rotate_right")
 	if Input.is_action_pressed("shoot") and can_shoot:
 		shoot()
-		
+
 
 func _physics_process(_delta):
 	constant_force = thrust
 	constant_torque = rotation_dir * spin_power
-	
+
+
 func _integrate_forces(physics_state):
 	var xform = physics_state.transform
 	xform.origin.x = wrapf(xform.origin.x, 0, screensize.x)
@@ -94,9 +98,6 @@ func _integrate_forces(physics_state):
 		physics_state.transform.origin = screensize / 2
 		reset_pos = false
 
-
-func _on_gun_cooldown_timeout() -> void:
-	can_shoot = true
 
 func reset():
 	reset_pos = true
