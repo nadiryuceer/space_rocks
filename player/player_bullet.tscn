@@ -1,7 +1,7 @@
 [gd_scene load_steps=4 format=3 uid="uid://dm0jwnvryjixk"]
 
 [ext_resource type="Texture2D" uid="uid://7ig0s4ylvg8u" path="res://assets/laser.png" id="1_7mpeu"]
-[ext_resource type="Script" path="res://bullet/bullet.gd" id="1_xjdkm"]
+[ext_resource type="Script" path="res://player/player_bullet.gd" id="1_xjdkm"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_l4ms3"]
 
@@ -18,5 +18,6 @@ texture = ExtResource("1_7mpeu")
 
 [node name="VisibleOnScreenNotifier2D" type="VisibleOnScreenNotifier2D" parent="."]
 
+[connection signal="area_entered" from="." to="." method="_on_area_entered"]
 [connection signal="body_entered" from="." to="." method="_on_body_entered"]
 [connection signal="screen_exited" from="VisibleOnScreenNotifier2D" to="." method="_on_visible_on_screen_notifier_2d_screen_exited"]
