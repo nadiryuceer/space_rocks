@@ -25,10 +25,12 @@ func new_game():
 	await $HUD/Timer.timeout
 	playing = true
 	$Player.start()
+	$Sounds/Music.play()
 
 
 func new_level():
 	level += 1
+	$Sounds/LevelUp.play()
 	$HUD.show_message("Wave %s" % level)
 	for i in level:
 		spawn_rock(3)
@@ -50,6 +52,7 @@ func spawn_rock(size, pos=null, vel=null):
 
 func _on_rock_exploded(size, radius, pos, vel):
 	score+=1
+	$Sounds/Explosion.play()
 	$HUD.update_score(score)
 	if size <= 1:
 		return
@@ -63,6 +66,7 @@ func _on_rock_exploded(size, radius, pos, vel):
 func _on_enemy_exploded():
 	score+=3
 	$HUD.update_score(score)
+	$Sounds/Explosion.play()
 
 
 func _process(_delta):
@@ -75,6 +79,7 @@ func _process(_delta):
 func game_over():
 	playing = false
 	$HUD.game_over()
+	$Sounds/Music.stop()
 
 
 func _input(event):

@@ -1,13 +1,30 @@
-[gd_scene load_steps=10 format=3 uid="uid://bhskj5g7h410"]
+[gd_scene load_steps=14 format=3 uid="uid://bhskj5g7h410"]
 
 [ext_resource type="Texture2D" uid="uid://dr6ux3v8wnpoi" path="res://assets/enemy_saucer.png" id="1_ggo0k"]
 [ext_resource type="Script" path="res://enemy/enemy.gd" id="1_gtpnu"]
 [ext_resource type="PackedScene" uid="uid://dhx17155fmyrm" path="res://enemy/enemy_paths.tscn" id="2_pxvpf"]
 [ext_resource type="PackedScene" uid="uid://bhf0unk8g7nbl" path="res://enemy/enemy_bullet.tscn" id="2_u3dfr"]
 [ext_resource type="PackedScene" uid="uid://bislnohmpakib" path="res://common/explosion.tscn" id="3_7d5jv"]
+[ext_resource type="AudioStream" uid="uid://eupfdqdxxnnb" path="res://assets/sounds/enemy_laser.wav" id="6_sqep4"]
+[ext_resource type="Texture2D" uid="uid://drl1ioi4hktq7" path="res://assets/corona.png" id="7_bylsi"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_rjnar"]
 radius = 37.0
+
+[sub_resource type="Animation" id="Animation_bb8wc"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:modulate")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Color(1, 0, 0, 1)]
+}
 
 [sub_resource type="Animation" id="Animation_ln2kf"]
 resource_name = "flash"
@@ -26,26 +43,18 @@ tracks/0/keys = {
 "values": [Color(1, 1, 1, 1), Color(1, 0, 0, 1), Color(1, 1, 1, 1), Color(1, 0, 0, 1), Color(1, 1, 1, 1), Color(1, 0, 0, 1), Color(1, 1, 1, 1)]
 }
 
-[sub_resource type="Animation" id="Animation_bb8wc"]
-length = 0.001
-tracks/0/type = "value"
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/path = NodePath("Sprite2D:modulate")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
-tracks/0/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 0,
-"values": [Color(1, 0, 0, 1)]
-}
-
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_1q5si"]
 _data = {
 "RESET": SubResource("Animation_bb8wc"),
 "flash": SubResource("Animation_ln2kf")
 }
+
+[sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_yw0ow"]
+blend_mode = 1
+
+[sub_resource type="Curve" id="Curve_u6p88"]
+_data = [Vector2(0.00377358, 0.901562), 0.0, 0.0, 0, 0, Vector2(1, 0.181732), 0.0, 0.0, 0, 0]
+point_count = 2
 
 [node name="Enemy" type="Area2D" groups=["enemies"]]
 process_mode = 1
@@ -74,6 +83,23 @@ visible = false
 wait_time = 3.0
 
 [node name="VisibleOnScreenNotifier2D" type="VisibleOnScreenNotifier2D" parent="."]
+
+[node name="Sounds" type="Node2D" parent="."]
+
+[node name="Shoot" type="AudioStreamPlayer2D" parent="Sounds"]
+stream = ExtResource("6_sqep4")
+
+[node name="CPUParticles2D" type="CPUParticles2D" parent="."]
+show_behind_parent = true
+material = SubResource("CanvasItemMaterial_yw0ow")
+amount = 20
+texture = ExtResource("7_bylsi")
+emission_shape = 1
+emission_sphere_radius = 25.0
+gravity = Vector2(0, 0)
+scale_amount_min = 0.1
+scale_amount_max = 0.1
+scale_amount_curve = SubResource("Curve_u6p88")
 
 [connection signal="body_entered" from="." to="." method="_on_body_entered"]
 [connection signal="timeout" from="GunCooldown" to="." method="_on_gun_cooldown_timeout"]

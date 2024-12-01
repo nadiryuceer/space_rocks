@@ -36,6 +36,7 @@ func shoot():
 	var b = bullet_scene.instantiate()
 	get_tree().root.add_child(b)
 	b.start(global_position, dir)
+	$Sounds/Shoot.play()
 
 
 func shoot_pulse(n, delay):
