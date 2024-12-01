@@ -4,9 +4,12 @@ extends RigidBody2D
 @export var spin_power = 8000
 @export var bullet_scene : PackedScene
 @export var fire_rate = 0.25
+@export var max_shield = 100.0
+@export var shield_regen = 5.0
 
 signal lives_changed
 signal dead
+signal shield_changed
 
 var screensize = Vector2.ZERO
 enum {INIT, ALIVE, INVULNERABLE, DEAD}
@@ -16,13 +19,17 @@ var rotation_dir = 0
 var can_shoot = true
 var reset_pos = false
 var lives = 0: set = set_lives
+var shield = 0: set = set_shield
 
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
-		change_state(ALIVE)
 		screensize = get_viewport_rect().size
 		$GunCooldown.wait_time = fire_rate
+
+
+func start():
+	change_state(ALIVE)
 
 
 func set_lives(value):
@@ -32,6 +39,7 @@ func set_lives(value):
 		change_state(DEAD)
 	else:
 		change_state(INVULNERABLE)
+	shield = max_shield
 
 
 func change_state(new_state):
@@ -69,8 +77,10 @@ func _on_gun_cooldown_timeout() -> void:
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(_delta):
-	get_input()
+func _process(delta):
+	if state == ALIVE:
+		shield += shield_regen * delta
+		get_input()
 	
 
 func get_input():
@@ -103,7 +113,7 @@ func reset():
 	reset_pos = true
 	$Sprite2D.show()
 	lives = 3
-	change_state(ALIVE)
+	change_state(INIT)
 
 
 func _on_invulnerability_timer_timeout() -> void:
@@ -112,10 +122,8 @@ func _on_invulnerability_timer_timeout() -> void:
 
 func _on_body_entered(body: Node) -> void:
 	if body.is_in_group("rocks"):
-		if state != INVULNERABLE:
-			body.explode()
-			lives -= 1
-			explode()
+		shield -= body.size * 25
+		body.explode()
 
 
 func explode():
@@ -123,3 +131,12 @@ func explode():
 	$Explosion/AnimationPlayer.play("explosion")
 	await $Explosion/AnimationPlayer.animation_finished
 	$Explosion.hide()
+
+
+func set_shield(value):
+	value = min(value, max_shield)
+	shield = value
+	shield_changed.emit(shield / max_shield)
+	if shield <= 0:
+		lives -= 1
+		explode()

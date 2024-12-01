@@ -2,6 +2,7 @@ extends Area2D
 
 
 @export var speed = 1000
+@export var damage = 15
 
 
 func start(_pos, _dir):
@@ -18,4 +19,6 @@ func _on_screen_exited() -> void:
 
 
 func _on_body_entered(body: Node2D) -> void:
+	if body.name == "Player":
+		body.shield -= damage
 	queue_free()

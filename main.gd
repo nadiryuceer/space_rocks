@@ -24,6 +24,7 @@ func new_game():
 	$Player.reset()
 	await $HUD/Timer.timeout
 	playing = true
+	$Player.start()
 
 
 func new_level():
@@ -59,6 +60,11 @@ func _on_rock_exploded(size, radius, pos, vel):
 		spawn_rock(size - 1, newpos, newvel)
 
 
+func _on_enemy_exploded():
+	score+=3
+	$HUD.update_score(score)
+
+
 func _process(_delta):
 	if not playing:
 		return
@@ -90,3 +96,4 @@ func _on_enemy_timer_timeout() -> void:
 	add_child(e)
 	e.target = $Player
 	$EnemyTimer.start(randf_range(20, 40))
+	e.exploded.connect(self._on_enemy_exploded)

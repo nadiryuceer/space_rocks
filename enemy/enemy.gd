@@ -9,6 +9,8 @@ extends Area2D
 var follow = PathFollow2D.new()
 var target = null
 
+signal exploded
+
 func _ready():
 	$Sprite2D.frame = randi() % 3
 	var path = $EnemyPaths.get_children()[randi() % $EnemyPaths.get_child_count()]
@@ -23,10 +25,6 @@ func _physics_process(delta):
 	if follow.progress_ratio >= 1:
 		queue_free()
 
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta: float) -> void:
-	pass
-
 
 func _on_gun_cooldown_timeout() -> void:
 	shoot_pulse(3, 0.15)
@@ -38,7 +36,8 @@ func shoot():
 	var b = bullet_scene.instantiate()
 	get_tree().root.add_child(b)
 	b.start(global_position, dir)
-	
+
+
 func shoot_pulse(n, delay):
 	for i in n:
 		shoot()
@@ -54,6 +53,7 @@ func take_damage(amount):
 
 func explode():
 	speed = 0
+	exploded.emit()
 	$GunCooldown.stop()
 	$CollisionShape2D.set_deferred("disabled", true)
 	$Sprite2D.hide()
@@ -67,3 +67,12 @@ func _on_body_entered(body: Node2D) -> void:
 	if body.is_in_group("rocks"):
 		return
 	explode()
+	body.shield -= 50
+
+
+func _screen_entered() -> void:
+	$GunCooldown.start()
+
+
+func _screen_exited() -> void:
+	$GunCooldown.stop()
