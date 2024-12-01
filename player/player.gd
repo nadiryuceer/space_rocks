@@ -44,7 +44,7 @@ func shoot():
 	b.start($Muzzle.global_transform)
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta):
+func _process(_delta):
 	get_input()
 	
 
@@ -59,7 +59,7 @@ func get_input():
 		shoot()
 		
 
-func _physics_process(delta):
+func _physics_process(_delta):
 	constant_force = thrust
 	constant_torque = rotation_dir * spin_power
 	
